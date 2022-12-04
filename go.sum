@@ -1,0 +1,4 @@
+github.com/Senhnn/GoroutinePool v0.0.0-20220913133543-d1e629348a99 h1:mnJqtYs0F6TDH0rd61NuVIK3ERBZj4D7t2xheeQvxuw=
+github.com/Senhnn/GoroutinePool v0.0.0-20220913133543-d1e629348a99/go.mod h1:YAXW/H41M2tTHYUPC6qNDLe1BtaTVBNUL4rwP6L97BQ=
+golang.org/x/sys v0.1.0 h1:kunALQeHf1/185U1i0GOB/fy1IPRDDpuoOOqRReG57U=
+golang.org/x/sys v0.1.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
