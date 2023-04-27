@@ -16,7 +16,7 @@ func init() {
 		panic(err)
 	}
 
-	f, err := os.OpenFile(path+"/net.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0)
+	f, err := os.OpenFile(path+"/net.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
 	}

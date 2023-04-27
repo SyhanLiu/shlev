@@ -4,28 +4,35 @@ import (
 	"fmt"
 	"golang.org/x/sys/unix"
 	"os"
-	"runtime"
 	"shlev/tools/logger"
 	"shlev/tools/shleverror"
 	"shlev/tools/task_queue"
 	"sync/atomic"
 )
 
+// Epoller 需要实现 Netpoller 接口
 type Epoller struct {
 	epfd            int                       // epoll fd
 	eventFd         int                       // EventFd用于通知重要事件
-	eventFdBuf      []byte                    // EventFdBuffer
-	wakeUpCall      int32                     // 是否通过紧急任务唤醒
-	fdSet           map[int]struct{}          // epoll中的fd
+	eventFdBuf      []byte                    // EventFd的buffer
 	taskQueue       task_queue.AsyncTaskQueue // 低优先级任务队列
 	urgentTaskQueue task_queue.AsyncTaskQueue // 高优先级任务队列
+	wakeUpCall      int32                     // 0：不被唤醒，1：被唤醒
 }
 
+// NewEpoller 创建新的空 Epoller
 func NewEpoller() *Epoller {
-	return &Epoller{}
+	return &Epoller{
+		epfd:            -1,
+		eventFd:         -1,
+		eventFdBuf:      nil,
+		taskQueue:       nil,
+		urgentTaskQueue: nil,
+	}
 }
 
-func (e *Epoller) Open() (err error) {
+// Init 初始化 Epoller
+func (e *Epoller) Init() (err error) {
 	// unix.EPOLL_CLOEXEC
 	// 当 flggs 为 0 时候，epoll_create1(0)与 epoll_create 功能一致
 	/*如果设置为 EPOLL_CLOEXEC，那么由当前进程 fork 出来的任何子进程，其都会关闭其父进程的 epoll 实例所指向的文件描述符，
@@ -35,38 +42,47 @@ func (e *Epoller) Open() (err error) {
 		err = os.NewSyscallError("epoll_create1", err)
 		return err
 	}
+
+	// 创建eventFd
+	// 用法：eventFd的write操作，可以增加计数器数值；read操作，会把数据读出，且计数器数值归零。
+	// 非阻塞场景下：write操作时，如果计数器值达到max，则会阻塞；read操作时，如果计数器为0时也会阻塞。
+	// flags可以以下三个标志位的OR结果：
+	// EFD_CLOEXEC：FD_CLOEXEC，简单说就是fork子进程时不继承，对于多线程的程序设上这个值不会有错的。
+	// EFD_NONBLOCK：文件会被设置成O_NONBLOCK，一般要设置。
+	// EFD_SEMAPHORE：（2.6.30以后支持）支持semophore语义的read，简单说就值递减1。
 	if e.eventFd, err = unix.Eventfd(0, unix.EFD_NONBLOCK|unix.EFD_CLOEXEC); err != nil {
 		e.Close()
 		if err = os.NewSyscallError("close", unix.Close(e.epfd)); err != nil {
 			return err
 		}
 
-		logger.Error("Eventfd open error! err:", err)
+		logger.Error("Eventfd open error! err:", err.Error())
 		err = os.NewSyscallError("eventfd", err)
 		return err
 	}
 	e.eventFdBuf = make([]byte, 8)
+	// 监听EventFd可读的事件
 	if err = e.AddRead(e.eventFd); err != nil {
 		_ = e.Close()
-		logger.Error(fmt.Sprintf(""))
+		logger.Error(fmt.Sprintf("Eventfd add read err:%s", err.Error()))
 		return err
 	}
+
 	e.taskQueue = task_queue.NewLockFreeTaskQueue()
 	e.urgentTaskQueue = task_queue.NewLockFreeTaskQueue()
 	return nil
 }
 
-// Poll 阻塞当前协程，等待网络IO事件
+// Polling 网络IO事件
 func (e *Epoller) Polling(callback func(fd int, ev uint32) error) error {
 	eventsList := newEventsList()
 	// 是否执行任务
 	var isExecTask bool
 
 	for {
-		n, err := unix.EpollWait(e.epfd, eventsList.events, 0)
+		n, err := unix.EpollWait(e.epfd, eventsList.events, 0 /*非阻塞调用*/)
 		// unix.EINTR：这个调用被信号打断
 		if n == 0 || (n < 0 && err == unix.EINTR) {
-			runtime.Gosched()
 			continue
 		} else if err != nil {
 			logger.Error(fmt.Sprintf("Poll error occurs in epoll: %v", os.NewSyscallError("epoll_wait", err)))
@@ -126,6 +142,7 @@ func (e *Epoller) Polling(callback func(fd int, ev uint32) error) error {
 				}
 				task_queue.PutTask(task)
 			}
+
 			atomic.StoreInt32(&e.wakeUpCall, 0)
 			if (!e.taskQueue.IsEmpty() || !e.urgentTaskQueue.IsEmpty()) && atomic.CompareAndSwapInt32(&e.wakeUpCall, 0, 1) {
 				_, err = unix.Write(e.eventFd, eventFdNtfData[:])
@@ -139,7 +156,7 @@ func (e *Epoller) Polling(callback func(fd int, ev uint32) error) error {
 	}
 }
 
-// Close 关闭epoller
+// Close 关闭 Epoller
 func (e *Epoller) Close() error {
 	err := os.NewSyscallError("close", unix.Close(e.epfd))
 	if err != nil {
@@ -156,7 +173,6 @@ func (e *Epoller) AddReadWrite(fd int) error {
 		return os.NewSyscallError("epoll_ctl add", err)
 	}
 
-	e.fdSet[fd] = struct{}{}
 	return nil
 }
 
@@ -168,7 +184,6 @@ func (e *Epoller) AddRead(fd int) error {
 		return os.NewSyscallError("epoll_ctl add", err)
 	}
 
-	e.fdSet[fd] = struct{}{}
 	return nil
 }
 
@@ -180,7 +195,6 @@ func (e *Epoller) AddWrite(fd int) error {
 		return os.NewSyscallError("epoll_ctl add", err)
 	}
 
-	e.fdSet[fd] = struct{}{}
 	return nil
 }
 
@@ -223,13 +237,8 @@ func (e *Epoller) Delete(fd int) error {
 		logger.Error(fmt.Sprintf("epfd:%d delete fd:%d error", e.epfd, fd))
 		return os.NewSyscallError("epoll_ctl del", err)
 	}
-	delete(e.fdSet, fd)
-	return nil
-}
 
-// GetFdNum 获取当前监听的fd数量
-func (e *Epoller) GetFdNum() int {
-	return len(e.fdSet)
+	return nil
 }
 
 // 用于给eventFd唤醒

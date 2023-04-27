@@ -9,18 +9,17 @@ import (
 
 // Conn 封装套接字，抽象连接
 type Conn struct {
-	fd             int                     // 文件描述符
-	lnIndex        int                     // 监听器的索引
-	context        interface{}             // 用户定义的上下文
-	remotePeer     unix.Sockaddr           // 远端套接字地址
-	localAddr      net.Addr                // 本地地址
-	remoteAddr     net.Addr                // 远端地址
-	loop           *EventLoop              // 所属的事件循环
-	buffer         []byte                  // 保存最近读出的数据
-	recvBuffer     *bytes.Buffer           // 对端发送过来，未处理的数据
-	sendBuffer     *bytes.Buffer           // 需要发送给对端的数据
-	pollAttachment *netpoll.PollAttachment // connection attachment for poller
-	opened         bool                    // 连接是否打开
+	fd         int           // 文件描述符
+	lnIndex    int           // 监听器的索引
+	context    interface{}   // 用户定义的上下文
+	remotePeer unix.Sockaddr // 远端套接字地址
+	localAddr  net.Addr      // 本地地址
+	remoteAddr net.Addr      // 远端地址
+	loop       *EventLoop    // 所属的事件循环
+	buffer     []byte        // 保存最近读出的数据
+	recvBuffer *bytes.Buffer // 对端发送过来，未处理的数据
+	sendBuffer *bytes.Buffer // 需要发送给对端的数据
+	opened     bool          // 连接是否打开
 }
 
 func (c *Conn) Context() interface{}       { return c.context }
@@ -37,8 +36,6 @@ func (c *Conn) releaseTCP() {
 	c.remoteAddr = nil
 	c.recvBuffer = nil
 	c.sendBuffer = nil
-	netpoll.PutPollAttachment(c.pollAttachment)
-	c.pollAttachment = nil
 }
 
 // 连接打开时，发送buf给对端
@@ -66,8 +63,6 @@ func newTCPConn(fd int, e *EventLoop, sa unix.Sockaddr, localAddr, remoteAddr ne
 		remoteAddr: remoteAddr,
 	}
 	c.sendBuffer = bytes.NewBuffer(make([]byte, 0))
-	c.pollAttachment = netpoll.GetPollAttachment()
-	c.pollAttachment.FD, c.pollAttachment.Callback = fd, c.handleEvents
 	return
 }
 

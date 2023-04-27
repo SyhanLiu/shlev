@@ -5,7 +5,7 @@ import (
 )
 
 type Options struct {
-	// TCPKeepAlive 设置tcp连接的保活事件
+	// TCPKeepAlive 设置tcp连接的保活时间
 	TCPKeepAlive time.Duration
 
 	// 绑定goroutine到线程，使用tls的时候要用到，或者使用cgo，或者需要对当前进行操作，或者想让事件循环更高效运行
@@ -46,7 +46,7 @@ type OptionFunc = func(*Options)
 
 // 设置参数，返回最终的Options结构
 func loadOptions(options ...OptionFunc) *Options {
-	opts := new(Options)
+	opts := &Options{}
 	for _, option := range options {
 		option(opts)
 	}

@@ -82,7 +82,7 @@ func (s *Server) activateEventLoops(numEventLoop int) (err error) {
 		}
 
 		var p netpoll.Netpoller = netpoll.NewEpoller()
-		if err = p.Open(); err == nil {
+		if err = p.Init(); err == nil {
 			el := new(EventLoop)
 			el.ln = ln
 			el.server = s
@@ -110,7 +110,7 @@ func (s *Server) activateEventLoops(numEventLoop int) (err error) {
 func (s *Server) activateReactors(numEventLoop int) error {
 	for i := 0; i < numEventLoop; i++ {
 		var p netpoll.Netpoller = netpoll.NewEpoller()
-		if err := p.Open(); err == nil {
+		if err := p.Init(); err == nil {
 			el := &EventLoop{
 				ln:               s.ln,
 				index:            0,
@@ -132,7 +132,7 @@ func (s *Server) activateReactors(numEventLoop int) error {
 
 	// 建立主响应器，主响应器只负责监听端口建立连接
 	var p netpoll.Netpoller = netpoll.NewEpoller()
-	if err := p.Open(); err == nil {
+	if err := p.Init(); err == nil {
 		e := &EventLoop{
 			ln:           s.ln,
 			index:        -1,
@@ -171,10 +171,12 @@ func (s *Server) startSubReactors() {
 // 开启事件循环
 func (s *Server) start(numEventLoop int) error {
 	if s.opts.ReusePort {
+		// 类nginx
 		// 使用端口复用模式开启事件循环，多个线程监听同一个端口，每个线程都负责accpet，read，write
 		return s.activateEventLoops(numEventLoop)
 	}
 
+	// 类redis
 	// 开启一主多从reactor模式，主负责accept，从负责read，write
 	return s.activateReactors(numEventLoop)
 }
