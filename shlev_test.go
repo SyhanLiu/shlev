@@ -2,12 +2,18 @@ package shlev
 
 import (
 	"fmt"
+	"golang.org/x/sys/unix"
+	"shlev/tools/logger"
 	"testing"
 )
 
 func TestServer(t *testing.T) {
 	s := &testServer{}
-	Run(s, "127.0.0.1:9090", WithLoadBalancing(RoundRobin))
+	fmt.Println("server run")
+	Run(s, "47.103.116.215:10001", WithNumEventLoop(3), WithLoadBalancing(RoundRobin))
+	for true {
+
+	}
 }
 
 type testServer struct {
@@ -24,8 +30,10 @@ func (s *testServer) OnBoot(eng *Server) error {
 
 func (s *testServer) OnOpen(c *Conn, err error) (b []byte, e HandleResult) {
 	c.SetContext(c)
-	fmt.Println("OnOpen localAddr:", c.LocalAddr(), "; remoteAddr:", c.RemoteAddr())
-	return
+	logger.Debug("OnOpen localAddr:", c.LocalAddr(), "; remoteAddr:", c.RemoteAddr())
+	unix.Write(c.fd, []byte("fuck off\n"))
+	unix.Close(c.fd)
+	return []byte{}, None
 }
 
 func (s *testServer) OnConnectionClose(_ *Conn, _ error) {

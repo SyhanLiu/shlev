@@ -60,7 +60,7 @@ func NewTCP4Listener(addr string, options *Options) (l *Listener, err error) {
 		Network:  "tcp",
 		SockOpts: socketOpts,
 	}
-	l.Fd, l.Addr, err = socket.TCP4ListenSocket(addr)
+	l.Fd, l.Addr, err = socket.TCP4ListenSocket(addr, socketOpts...)
 	if err != nil {
 		logger.Error(fmt.Sprintf("NewTCP4Listener create new listener addr:%s, error: %s", addr, err))
 	}

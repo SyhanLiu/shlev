@@ -85,7 +85,7 @@ func (e *Epoller) Polling(callback func(fd int, ev uint32) error) error {
 		if n == 0 || (n < 0 && err == unix.EINTR) {
 			continue
 		} else if err != nil {
-			logger.Error(fmt.Sprintf("Poll error occurs in epoll: %v", os.NewSyscallError("epoll_wait", err)))
+			logger.Error(fmt.Sprintf("Poll error occurs in epoll: %s", os.NewSyscallError("epoll_wait", err).Error()))
 			return err
 		}
 

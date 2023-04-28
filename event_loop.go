@@ -220,7 +220,7 @@ func (e *EventLoop) accept(fd int, _ uint32) error {
 		if err == unix.EAGAIN {
 			return nil
 		}
-		logger.Error(fmt.Sprintf("Accept() failed due to error: %v", err))
+		logger.Error(fmt.Sprintf("Accept() failed due to error: %s", err.Error()))
 		return os.NewSyscallError("accept", err)
 	}
 
