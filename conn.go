@@ -3,6 +3,7 @@ package shlev
 import (
 	"bytes"
 	"golang.org/x/sys/unix"
+	"io"
 	"net"
 	"shlev/internal/netpoll"
 )
@@ -53,14 +54,69 @@ func (c *Conn) open(buf []byte) error {
 	return err
 }
 
+// 读数据
+func (c *Conn) Read(p []byte) (n int, err error) {
+	if c.recvBuffer.Len() == 0 {
+		n = copy(p, c.buffer)
+		c.buffer = c.buffer[n:]
+		if n == 0 && len(p) > 0 {
+			err = io.EOF
+		}
+		return n, err
+	}
+
+	n, _ = c.recvBuffer.Read(p)
+	if n == len(p) {
+		return
+	}
+
+	m := copy(p[n:], c.buffer)
+	n += m
+	c.buffer = c.buffer[m:]
+	return n, err
+}
+
+// 写数据
+func (c *Conn) Write(data []byte) (n int, err error) {
+	n = len(data)
+
+	// 连接发送缓冲区不为0时，说明此时套接字的发送缓冲区已经满了，没有必要向套接字写。
+	if c.sendBuffer.Len() != 0 {
+		c.sendBuffer.Write(data)
+		return n, nil
+	}
+
+	var send int
+	if send, err = unix.Write(c.fd, data); err != nil {
+		// 写入错误，释放内存，关闭连接
+		return -1, c.loop.closeConnection(c)
+	}
+
+	// 当套接字写缓冲区写满时，写入连接的发送缓冲区
+	if send < n {
+		c.sendBuffer.Write(data[send:])
+		// 监听写事件
+		err = c.loop.netpoll.ModReadWrite(c.fd)
+	}
+	return n, err
+}
+
+// TODO AsyncWrite
+
 // 创建新的tcp连接
 func newTCPConn(fd int, e *EventLoop, sa unix.Sockaddr, localAddr, remoteAddr net.Addr) (c *Conn) {
 	c = &Conn{
 		fd:         fd,
+		lnIndex:    0,
+		context:    nil,
 		remotePeer: sa,
-		loop:       e,
 		localAddr:  localAddr,
 		remoteAddr: remoteAddr,
+		loop:       e,
+		buffer:     nil,
+		recvBuffer: bytes.NewBuffer(make([]byte, e.server.opts.SocketRecvBuffer)),
+		sendBuffer: bytes.NewBuffer(make([]byte, e.server.opts.SocketSendBuffer)),
+		opened:     false,
 	}
 	c.sendBuffer = bytes.NewBuffer(make([]byte, 0))
 	return

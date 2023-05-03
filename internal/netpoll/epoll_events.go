@@ -14,7 +14,7 @@ import "golang.org/x/sys/unix"
  */
 
 const (
-	readEvents      = unix.EPOLLPRI | unix.EPOLLIN
+	readEvents      = unix.EPOLLIN
 	writeEvents     = unix.EPOLLOUT
 	readWriteEvents = readEvents | writeEvents
 
@@ -35,10 +35,10 @@ const (
 	** 有写需要时才通过epoll_ctl添加相应fd，不然在LT模式下会频繁触发;
 	** 对于写操作，大部分情况下都处于可写状态，可先直接调用write来发送数据，直到返回 EAGAIN后再使能EPOLLOUT，待触发后再继续write。
 	 */
-	// OutEvents combines EPOLLOUT event and some exceptional events.
+	// OutEvents 包含错误，挂断以及可写事件
 	OutEvents = ErrEvents | unix.EPOLLOUT
-	// InEvents combines EPOLLIN/EPOLLPRI events and some exceptional events.
-	InEvents = ErrEvents | unix.EPOLLIN | unix.EPOLLPRI
+	// InEvents 包含错误，挂断以及可读事件
+	InEvents = ErrEvents | unix.EPOLLIN
 )
 
 const (

@@ -48,10 +48,6 @@ func (e *EventLoop) closeConnection(c *Conn) (err error) {
 	if !c.opened {
 		return
 	}
-	// 连接
-	if addr := c.localAddr; addr != nil {
-		return
-	}
 
 	// 如果发送缓冲不为空，说明还有数据要发送，需要先发送完数据再关闭连接
 	if c.sendBuffer.Len() != 0 {
@@ -118,16 +114,17 @@ func (e *EventLoop) open(c *Conn) error {
 	return e.handleResult(c, result)
 }
 
+// 封装read系统调用
 func (e *EventLoop) read(c *Conn) error {
 	n, err := unix.Read(c.fd, e.buffer)
-	if err == nil || n == 0 {
+	if err != nil || n == 0 {
 		if err == unix.EAGAIN {
 			return nil
 		}
 		if n == 0 {
 			err = unix.ECONNRESET
 		}
-		logger.Error(fmt.Sprintf("EventLoop event_loop idx:%d read err:%v", c.fd, os.NewSyscallError("read", err)))
+		logger.Error(fmt.Sprintf("EventLoop event_loop fd:%d read err:%v", c.fd, os.NewSyscallError("read", err)))
 		return e.closeConnection(c)
 	}
 
@@ -267,6 +264,7 @@ func (e *EventLoop) run(lockOSThread bool) {
 					return err
 				}
 			}
+			// 当套接字有 unix.EPOLLIN 事件，且读到的数据长度为0时，说明对方已经关闭连接。
 			if (ev & netpoll.InEvents) != 0 {
 				return e.read(c)
 			}

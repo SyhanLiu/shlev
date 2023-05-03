@@ -16,7 +16,7 @@ func init() {
 		panic(err)
 	}
 
-	f, err := os.OpenFile(path+"/net.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(path+"/shlev_net.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -42,9 +42,19 @@ func Init(v ...any) {
 	logger.Println(v...)
 }
 
+func DebugF(fmt string, v ...any) {
+	setPrefix("DEBUG")
+	logger.Printf(fmt, v...)
+}
+
 func Debug(v ...any) {
 	setPrefix("DEBUG")
 	logger.Println(v...)
+}
+
+func WarnF(fmt string, v ...any) {
+	setPrefix("WARN")
+	logger.Printf(fmt, v...)
 }
 
 func Warn(v ...any) {
@@ -52,14 +62,29 @@ func Warn(v ...any) {
 	logger.Println(v...)
 }
 
+func ErrorF(fmt string, v ...any) {
+	setPrefix("ERROR")
+	logger.Printf(fmt, v...)
+}
+
 func Error(v ...any) {
 	setPrefix("ERROR")
 	logger.Println(v...)
 }
 
+func InfoF(fmt string, v ...any) {
+	setPrefix("INFO")
+	logger.Printf(fmt, v...)
+}
+
 func Info(v ...any) {
 	setPrefix("INFO")
 	logger.Println(v...)
+}
+
+func FatalF(fmt string, v ...any) {
+	setPrefix("FATAL")
+	logger.Printf(fmt, v...)
 }
 
 func Fatal(v ...any) {

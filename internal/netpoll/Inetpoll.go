@@ -11,6 +11,8 @@ type Netpoller interface {
 	AddWrite(fd int) error
 	// ModRead 改为读
 	ModRead(fd int) error
+	// ModReadWrite 读写事件
+	ModReadWrite(fd int) error
 	// Polling 轮询事件
 	Polling(func(int, uint32) error) error
 	// Close 关闭事件循环
