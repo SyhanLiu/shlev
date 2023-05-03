@@ -3,8 +3,8 @@ package shlev
 import (
 	"context"
 	"fmt"
-	"shlev/tools/logger"
-	"shlev/tools/shleverror"
+	"github.com/Senhnn/shlev/tools/logger"
+	"github.com/Senhnn/shlev/tools/shleverror"
 	"sync"
 	"time"
 )

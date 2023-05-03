@@ -3,13 +3,13 @@ package shlev
 import (
 	"bytes"
 	"fmt"
+	"github.com/Senhnn/shlev/internal/netpoll"
+	"github.com/Senhnn/shlev/internal/socket"
+	"github.com/Senhnn/shlev/tools/logger"
+	"github.com/Senhnn/shlev/tools/shleverror"
 	"golang.org/x/sys/unix"
 	"os"
 	"runtime"
-	"shlev/internal/netpoll"
-	"shlev/internal/socket"
-	"shlev/tools/logger"
-	"shlev/tools/shleverror"
 	"sync"
 	"sync/atomic"
 )

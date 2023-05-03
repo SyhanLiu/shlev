@@ -2,10 +2,10 @@ package shlev
 
 import (
 	"bytes"
+	"github.com/Senhnn/shlev/internal/netpoll"
 	"golang.org/x/sys/unix"
 	"io"
 	"net"
-	"shlev/internal/netpoll"
 )
 
 // Conn 封装套接字，抽象连接

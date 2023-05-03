@@ -1,8 +1,8 @@
 package netpoll
 
 import (
+	"github.com/Senhnn/shlev/tools/logger"
 	"golang.org/x/sys/unix"
-	"shlev/tools/logger"
 )
 
 type Selecter struct {

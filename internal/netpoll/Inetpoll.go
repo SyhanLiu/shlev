@@ -1,6 +1,6 @@
 package netpoll
 
-import "shlev/tools/task_queue"
+import "github.com/Senhnn/shlev/tools/task_queue"
 
 type Netpoller interface {
 	// Delete 删除套接字

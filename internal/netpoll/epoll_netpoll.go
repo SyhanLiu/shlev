@@ -2,11 +2,11 @@ package netpoll
 
 import (
 	"fmt"
+	"github.com/Senhnn/shlev/tools/logger"
+	"github.com/Senhnn/shlev/tools/shleverror"
+	"github.com/Senhnn/shlev/tools/task_queue"
 	"golang.org/x/sys/unix"
 	"os"
-	"shlev/tools/logger"
-	"shlev/tools/shleverror"
-	"shlev/tools/task_queue"
 	"sync/atomic"
 )
 

@@ -3,10 +3,10 @@ package socket
 import (
 	"bufio"
 	"errors"
+	"github.com/Senhnn/shlev/tools/logger"
 	"golang.org/x/sys/unix"
 	"net"
 	"os"
-	"shlev/tools/logger"
 	"strconv"
 	"strings"
 )

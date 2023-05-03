@@ -1,4 +1,4 @@
-module shlev
+module github.com/Senhnn/shlev
 
 go 1.19
 

@@ -2,11 +2,11 @@ package shlev
 
 import (
 	"fmt"
+	"github.com/Senhnn/shlev/internal/socket"
+	"github.com/Senhnn/shlev/tools/logger"
 	"golang.org/x/sys/unix"
 	"net"
 	"os"
-	"shlev/internal/socket"
-	"shlev/tools/logger"
 	"sync"
 )
 

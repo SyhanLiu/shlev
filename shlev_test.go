@@ -3,8 +3,8 @@ package shlev
 import (
 	"context"
 	"fmt"
+	"github.com/Senhnn/shlev/tools/logger"
 	"golang.org/x/sys/unix"
-	"shlev/tools/logger"
 	"testing"
 	"time"
 )

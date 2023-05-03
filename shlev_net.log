@@ -1,0 +1,45 @@
+[INIT][logger.go:25]logger init success!
+[DEBUG][shlev_test.go:36]OnOpen localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37294
+[ERROR][event_loop.go:127]EventLoop event_loop fd:16 read err:read: connection reset by peer
+[DEBUG][shlev_test.go:46]OnConnectionClose localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37294
+[INIT][logger.go:25]logger init success!
+[DEBUG][shlev_test.go:37]OnOpen localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37296
+[ERROR][event_loop.go:127]EventLoop event_loop fd:16 read err:read: connection reset by peer
+[DEBUG][shlev_test.go:47]OnConnectionClose localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37296
+[INIT][logger.go:25]logger init success!
+[INIT][logger.go:25]logger init success!
+[DEBUG][shlev_test.go:36]OnOpen localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37298
+[ERROR][event_loop.go:127]EventLoop event_loop fd:16 read err:read: connection reset by peer
+[DEBUG][shlev_test.go:46]OnConnectionClose localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37298
+[INIT][logger.go:25]logger init success!
+[DEBUG][shlev_test.go:38]OnOpen localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37300
+[ERROR][event_loop.go:127]EventLoop event_loop fd:16 read err:read: connection reset by peer
+[DEBUG][shlev_test.go:48]OnConnectionClose localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:37300
+[DEBUG][linux_tcp_listener.go:85]ln close success!
+[DEBUG][linux_tcp_listener.go:85]Polling exec urgentTask error: server is going to be shutdown
+[DEBUG][event_loop.go:311]event-loop(0) is exiting due to error: server is going to be shutdown
+[DEBUG][event_loop.go:311]Polling exec urgentTask error: server is going to be shutdown
+[DEBUG][event_loop.go:311]event-loop(2) is exiting due to error: server is going to be shutdown
+[DEBUG][event_loop.go:311]Polling exec urgentTask error: server is going to be shutdown
+[ERROR][epoll_netpoll.go:120]Polling exec urgentTask error: server is going to be shutdown
+[ERROR][event_loop.go:326]main reactor is exiting in terms of the demand from user, error: server is going to be shutdown
+[DEBUG][event_loop.go:311]event-loop(1) is exiting due to error: server is going to be shutdown
+[INIT][logger.go:25]logger init success!
+[DEBUG][shlev_test.go:38]OnOpen localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:36840
+[ERROR][event_loop.go:127]EventLoop event_loop fd:16 read err:read: connection reset by peer
+[INIT][logger.go:25]logger init success!
+[DEBUG][shlev_test.go:38]OnOpen localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:36842
+[ERROR][event_loop.go:127]EventLoop event_loop fd:16 read err:read: connection reset by peer
+[INIT][logger.go:25]logger init success!
+[DEBUG][shlev_test.go:38]OnOpen localAddr: 127.0.0.1:10001 ; remoteAddr: 127.0.0.1:42612
+[ERROR][event_loop.go:127]EventLoop event_loop fd:16 read err:read: connection reset by peer
+[DEBUG][linux_tcp_listener.go:85]ln close success!
+[ERROR][epoll_netpoll.go:120]Polling exec urgentTask error: server is going to be shutdown
+[ERROR][event_loop.go:326]main reactor is exiting in terms of the demand from user, error: server is going to be shutdown
+[ERROR][event_loop.go:326]Polling exec urgentTask error: server is going to be shutdown
+[DEBUG][event_loop.go:311]event-loop(2) is exiting due to error: server is going to be shutdown
+[DEBUG][event_loop.go:311]Polling exec urgentTask error: server is going to be shutdown
+[DEBUG][event_loop.go:311]Polling exec urgentTask error: server is going to be shutdown
+[DEBUG][event_loop.go:311]event-loop(0) is exiting due to error: server is going to be shutdown
+[DEBUG][event_loop.go:311]event-loop(1) is exiting due to error: server is going to be shutdown
+[INIT][logger.go:25]logger init success!
