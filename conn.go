@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"github.com/Senhnn/shlev/internal/netpoll"
 	"golang.org/x/sys/unix"
-	"io"
 	"net"
 )
 
@@ -17,7 +16,6 @@ type Conn struct {
 	localAddr  net.Addr      // 本地地址
 	remoteAddr net.Addr      // 远端地址
 	loop       *EventLoop    // 所属的事件循环
-	buffer     []byte        // 保存最近读出的数据
 	recvBuffer *bytes.Buffer // 对端发送过来，未处理的数据
 	sendBuffer *bytes.Buffer // 需要发送给对端的数据
 	opened     bool          // 连接是否打开
@@ -56,24 +54,7 @@ func (c *Conn) open(buf []byte) error {
 
 // 读数据
 func (c *Conn) Read(p []byte) (n int, err error) {
-	if c.recvBuffer.Len() == 0 {
-		n = copy(p, c.buffer)
-		c.buffer = c.buffer[n:]
-		if n == 0 && len(p) > 0 {
-			err = io.EOF
-		}
-		return n, err
-	}
-
-	n, _ = c.recvBuffer.Read(p)
-	if n == len(p) {
-		return
-	}
-
-	m := copy(p[n:], c.buffer)
-	n += m
-	c.buffer = c.buffer[m:]
-	return n, err
+	return c.recvBuffer.Read(p)
 }
 
 // 写数据
@@ -113,7 +94,6 @@ func newTCPConn(fd int, e *EventLoop, sa unix.Sockaddr, localAddr, remoteAddr ne
 		localAddr:  localAddr,
 		remoteAddr: remoteAddr,
 		loop:       e,
-		buffer:     nil,
 		recvBuffer: bytes.NewBuffer(make([]byte, e.server.opts.SocketRecvBuffer)),
 		sendBuffer: bytes.NewBuffer(make([]byte, e.server.opts.SocketSendBuffer)),
 		opened:     false,

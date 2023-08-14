@@ -17,15 +17,14 @@ import (
 )
 
 type EventLoop struct {
-	ln     *Listener // 监听的套接字
-	index  int       // 该指针[]*EventLoop中的索引，事件循环列表中的索引
-	cache  bytes.Buffer
-	server *Server // 所属的server
-
+	ln               *Listener // 监听的套接字
+	index            int       // 该指针[]*EventLoop中的索引，事件循环列表中的索引
+	cache            bytes.Buffer
+	server           *Server           // 所属的server
 	buffer           []byte            // 缓冲区
 	tcpConnectionMap map[int]*Conn     // key：fd， value：Conn
 	connCount        int32             // 活跃连接数，连接需要时打开状态（opened=true）
-	netpoll          netpoll.Netpoller // 可循环对象（epoll）
+	netpoll          netpoll.Netpoller // 轮询（epoll）
 	eventHandler     EventHandler      // 用户定义的事件、连接钩子回调
 }
 
@@ -128,7 +127,7 @@ func (e *EventLoop) read(c *Conn) error {
 		return e.closeConnection(c)
 	}
 
-	c.buffer = e.buffer[:n]
+	c.recvBuffer.Write(e.buffer[:n])
 	result := e.eventHandler.OnTraffic(c)
 	switch result {
 	case None:
@@ -137,7 +136,6 @@ func (e *EventLoop) read(c *Conn) error {
 	case Shutdown:
 		return shleverror.ErrServerShutdown
 	}
-	c.recvBuffer.Write(c.buffer)
 
 	return nil
 }
