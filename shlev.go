@@ -3,10 +3,11 @@ package shlev
 import (
 	"context"
 	"fmt"
-	"github.com/Senhnn/shlev/tools/logger"
-	"github.com/Senhnn/shlev/tools/shleverror"
 	"sync"
 	"time"
+
+	"github.com/Senhnn/shlev/tools/logger"
+	"github.com/Senhnn/shlev/tools/shleverror"
 )
 
 // MaxTcpBufferCap tcp读/写缓冲区的最大值
@@ -36,8 +37,8 @@ type EventHandler interface {
 	// OnConnectionClose 在连接关闭时触发钩子
 	OnConnectionClose(*Conn, error)
 
-	// OnOpen 连接打开时触发钩子
-	OnOpen(*Conn, error) ([]byte, HandleResult)
+	// OnConnectionOpen 连接打开时触发钩子
+	OnConnectionOpen(*Conn, error) ([]byte, HandleResult)
 
 	// OnTraffic 当套接字收到数据时触发
 	OnTraffic(*Conn) HandleResult

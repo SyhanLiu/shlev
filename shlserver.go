@@ -3,15 +3,16 @@ package shlev
 import (
 	"bytes"
 	"fmt"
-	"github.com/Senhnn/shlev/internal/netpoll"
-	"github.com/Senhnn/shlev/internal/socket"
-	"github.com/Senhnn/shlev/tools/logger"
-	"github.com/Senhnn/shlev/tools/shleverror"
 	"golang.org/x/sys/unix"
 	"os"
 	"runtime"
 	"sync"
 	"sync/atomic"
+
+	"github.com/Senhnn/shlev/internal/netpoll"
+	"github.com/Senhnn/shlev/internal/socket"
+	"github.com/Senhnn/shlev/tools/logger"
+	"github.com/Senhnn/shlev/tools/shleverror"
 )
 
 type Server struct {

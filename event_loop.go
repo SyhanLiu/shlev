@@ -5,15 +5,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Senhnn/shlev/internal/netpoll"
-	"github.com/Senhnn/shlev/internal/socket"
-	"github.com/Senhnn/shlev/tools/logger"
-	"github.com/Senhnn/shlev/tools/shleverror"
 	"golang.org/x/sys/unix"
 	"os"
 	"runtime"
 	"sync/atomic"
 	"time"
+
+	"github.com/Senhnn/shlev/internal/netpoll"
+	"github.com/Senhnn/shlev/internal/socket"
+	"github.com/Senhnn/shlev/tools/logger"
+	"github.com/Senhnn/shlev/tools/shleverror"
 )
 
 type EventLoop struct {
@@ -98,7 +99,7 @@ func (e *EventLoop) open(c *Conn) error {
 	c.opened = true
 	e.addConn(1)
 
-	buf, result := e.eventHandler.OnOpen(c, nil)
+	buf, result := e.eventHandler.OnConnectionOpen(c, nil)
 
 	if err := c.open(buf); err != nil {
 		return err
@@ -205,7 +206,6 @@ func (e *EventLoop) handleResult(c *Conn, res HandleResult) error {
 	default:
 		return nil
 	}
-	return nil
 }
 
 // 添加新连接

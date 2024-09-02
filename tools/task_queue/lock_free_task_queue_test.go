@@ -1,20 +1,21 @@
 package task_queue_test
 
 import (
-	taskqueue2 "shlev/tools/task_queue"
 	"sync"
 	"sync/atomic"
 	"testing"
+
+	"github.com/Senhnn/shlev/tools/task_queue"
 )
 
 func TestLockFreeTaskQueue(t *testing.T) {
-	q := taskqueue2.NewLockFreeTaskQueue()
+	q := task_queue.NewLockFreeTaskQueue()
 	wg := sync.WaitGroup{}
 	wg.Add(4)
 	var f int32
 	go func() {
 		for i := 0; i < 10000; i++ {
-			task := &taskqueue2.Task{}
+			task := &task_queue.Task{}
 			q.Enqueue(task)
 		}
 		atomic.AddInt32(&f, 1)
@@ -22,7 +23,7 @@ func TestLockFreeTaskQueue(t *testing.T) {
 	}()
 	go func() {
 		for i := 0; i < 10000; i++ {
-			task := &taskqueue2.Task{}
+			task := &task_queue.Task{}
 			q.Enqueue(task)
 		}
 		atomic.AddInt32(&f, 1)

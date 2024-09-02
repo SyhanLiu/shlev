@@ -3,10 +3,11 @@ package shlev
 import (
 	"context"
 	"fmt"
-	"github.com/Senhnn/shlev/tools/logger"
 	"golang.org/x/sys/unix"
 	"testing"
 	"time"
+
+	"github.com/Senhnn/shlev/tools/logger"
 )
 
 func TestServer(t *testing.T) {
@@ -18,7 +19,7 @@ func TestServer(t *testing.T) {
 		fmt.Println("server close")
 		Stop(context.Background(), "127.0.0.1:10001")
 	}()
-	Run(s, "127.0.0.1:10001", WithNumEventLoop(3), WithLoadBalancing(RoundRobin))
+	Run(s, "192.168.195.16:10001", WithNumEventLoop(3), WithLoadBalancing(RoundRobin))
 }
 
 type testServer struct {
@@ -33,7 +34,7 @@ func (s *testServer) OnBoot(eng *Server) error {
 	return nil
 }
 
-func (s *testServer) OnOpen(c *Conn, err error) (b []byte, e HandleResult) {
+func (s *testServer) OnConnectionOpen(c *Conn, err error) (b []byte, e HandleResult) {
 	c.SetContext(c)
 	logger.Debug("OnOpen localAddr:", c.LocalAddr(), "; remoteAddr:", c.RemoteAddr())
 	unix.Write(c.fd, []byte("fuck off\n"))

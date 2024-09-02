@@ -13,28 +13,36 @@ import "golang.org/x/sys/unix"
 ** 边沿触发仅触发一次，水平触发会一直触发。
  */
 
+/*
+** close行为
+** close时，如果接收缓冲区还有数据未read到应用层，则不会走四次挥手流程，直接发RST包，这个前面已经介绍过；
+** close时，如果发送缓冲区还有数据未发送，close立即返回，系统接管这个socket, 将尽力将发送缓冲区数据到对端，然后走发送FIN包；
+**  使用SO_LINGER改变close默认行为：通过struct linger设置
+ */
+
 const (
 	readEvents      = unix.EPOLLIN
 	writeEvents     = unix.EPOLLOUT
 	readWriteEvents = readEvents | writeEvents
 
 	// ErrEvents 表示非读写的套接字异常事件
-	// EPOLLERR 和 EPOLLHUP会自动监听，无需手动设置，但是我就是要写！！
+	// EPOLLERR 和 EPOLLHUP会自动监听，无需手动设置。
 	// unix.EPOLLERR：向已经关闭的socket写或者读
 	// unix.EPOLLHUP：对端关闭了套接字
 	/*
-	** unix.EPOLLRDHUP：在对端关闭时会触发，或者对端shutdown写
-	** 对EPOLLRDHUP的处理应该放在EPOLLIN和EPOLLOUT前面，处理方式应该 是close掉相应的fd后，作其他应用层的清理动作；
-	** 如果采用的是LT触发模式，且没有close相应的fd, EPOLLRDHUP会持续被触发；
-	** EPOLLRDHUP想要被触发，需要显式地在epoll_ctl调用时设置在events中
+	 ** unix.EPOLLRDHUP：在对端关闭时会触发，或者对端shutdown写
+	 ** 对EPOLLRDHUP的处理应该放在EPOLLIN和EPOLLOUT前面，处理方式应该 是close掉相应的fd后，作其他应用层的清理动作；
+	 ** 如果采用的是LT触发模式，且没有close相应的fd, EPOLLRDHUP会持续被触发；
+	 ** EPOLLRDHUP想要被触发，需要显式地在epoll_ctl调用时设置在events中
 	 */
 	ErrEvents = unix.EPOLLERR | unix.EPOLLHUP | unix.EPOLLRDHUP
 
 	/*
-	** unix.EPOLLOUT
-	** 有写需要时才通过epoll_ctl添加相应fd，不然在LT模式下会频繁触发;
-	** 对于写操作，大部分情况下都处于可写状态，可先直接调用write来发送数据，直到返回 EAGAIN后再使能EPOLLOUT，待触发后再继续write。
+	 ** unix.EPOLLOUT
+	 ** 有写需要时才通过epoll_ctl添加相应fd，不然在LT模式下会频繁触发;
+	 ** 对于写操作，大部分情况下都处于可写状态，可先直接调用write来发送数据，直到返回 EAGAIN后再使能EPOLLOUT，待触发后再继续write。
 	 */
+
 	// OutEvents 包含错误，挂断以及可写事件
 	OutEvents = ErrEvents | unix.EPOLLOUT
 	// InEvents 包含错误，挂断以及可读事件

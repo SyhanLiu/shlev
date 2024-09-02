@@ -17,7 +17,7 @@ type Netpoller interface {
 	Polling(func(int, uint32) error) error
 	// Close 关闭事件循环
 	Close() error
-	// Open 开启poll
+	// Init 开启poll
 	Init() error
 	// AddUrgentTask 添加紧急任务
 	AddUrgentTask(task_queue.TaskFunc, interface{}) error

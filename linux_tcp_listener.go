@@ -2,12 +2,13 @@ package shlev
 
 import (
 	"fmt"
-	"github.com/Senhnn/shlev/internal/socket"
-	"github.com/Senhnn/shlev/tools/logger"
 	"golang.org/x/sys/unix"
 	"net"
 	"os"
 	"sync"
+
+	"github.com/Senhnn/shlev/internal/socket"
+	"github.com/Senhnn/shlev/tools/logger"
 )
 
 type Listener struct {
@@ -16,8 +17,7 @@ type Listener struct {
 	Addr             net.Addr
 	Address, Network string
 	SockOpts         []socket.SocketOption
-	//pollAttachment   *netpoll.PollAttachment // listener attachment for poller
-	acceptCallback func(int, uint32) error
+	acceptCallback   func(int, uint32) error
 }
 
 func ConvertOptionToSocketOption(options *Options) ([]socket.SocketOption, error) {
